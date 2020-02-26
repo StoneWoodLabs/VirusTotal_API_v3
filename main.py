@@ -6,6 +6,19 @@ from time import sleep
 from prettytable import PrettyTable
 
 
+def arg_parser():
+    # --file and --apikey are required arguments to be passed through the program. A Virus Total apikey may be generated
+    # by registering an account https://www.virustotal.com
+    parser = argparse.ArgumentParser(description="This program submits a file specified by the argument --file to "
+                                                 "Virus Total. Apikey is required and can be obtained by "
+                                                 "registering a Virus Total account.")
+    parser.add_argument("--file", help="--file <file.exe> to specify file to analyze on Virus Total", required=True)
+    parser.add_argument("--apikey", help="--apikey <apikey> to specify apikey to submit to Virus Total api",
+                        required=True)
+    args = parser.parse_args()
+    return args
+
+
 # This function submits a file to Virus Total for analysis.
 def api_call_upload(file, api_key, vt_url):
     try:
@@ -53,9 +66,9 @@ def api_call_analysis(vt_id, api_key, vt_url):
                 return file_report
             counter += 1
             '''
-            # If the program takes longer than 15 minutes exit and show the status. 200 == success, api up. 
-            # 404 == error, api down or there is an issue with your network / host. Time = (counter * sleep(secs)), 
-            # first run (counter = 0) does not sleep and performs get api request immediately,
+            If the program takes longer than 15 minutes exit and show the status. 200 == success, api up. 
+            404 == error, api down or there is an issue with your network / host. Time = (counter * sleep(secs)), 
+            first run (counter = 0) does not sleep and performs get api request immediately,
             '''
             if counter == 40:
                 sys.exit("Virus total has taken 15 minutes to process, the api returned a " + str(response))
@@ -87,17 +100,8 @@ def print_stats(stats):
 
 
 def main():
-    # --file and --apikey are required arguments to be passed through the program. A Virus Total apikey may be generated
-    # by registering an account https://www.virustotal.com
     vt_url = "https://www.virustotal.com/api/v3/"
-    parser = argparse.ArgumentParser(description="This program submits a file specified by the argument --file to "
-                                                 "Virus Total. Apikey is required and can be obtained by "
-                                                 "registering a Virus Total account.")
-    parser.add_argument("--file", help="--file <file.exe> to specify file to analyze on Virus Total", required=True)
-    parser.add_argument("--apikey", help="--apikey <apikey> to specify apikey to submit to Virus Total api",
-                        required=True)
-    args = parser.parse_args()
-
+    args = arg_parser()
     # Example of api call for posting an file on Virus Total for analysis, and getting the basic report back.
     vt_id = api_call_upload(args.file, args.apikey, vt_url)
     file_report = api_call_analysis(vt_id, args.apikey, vt_url)
