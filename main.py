@@ -1,8 +1,8 @@
 import requests
 import sys
+import argparse
 from time import sleep
 from prettytable import PrettyTable
-import argparse
 
 
 def api_call_upload(file, api_key, vt_url):
